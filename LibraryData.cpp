@@ -1,5 +1,6 @@
 #include "LibraryData.h"
 #include <iostream>
+#include <limits>
 using namespace std;
 void loadSampleData(vector<Book>& books, map<string, User>& users, set<string>& categories) {
    users.emplace("librarian", User("librarian", "libpass", true));
@@ -19,8 +20,53 @@ void loadSampleData(vector<Book>& books, map<string, User>& users, set<string>& 
 void printBook(const Book& b) {            
     cout << b.title << ", by " << b.author << ", " << b.year << ", " << b.category << ", ISBN " << b.isbn << ". Status: ";
     if (b.isBorrowed) {
-        cout << "Borrowed by " << b.borrowedBy;
-    } else {
+        cout << "Borrowed by " << b.borrowedBy << endl;
+    } else if (b.isReferenceOnly) {
+        cout << "Reference only" << endl;
+    }
+    else {
         cout << "Available" << endl;
+    }
+}
+void runWelcomeMenu(map<string, User>& users, vector<Book>& books, set<string>& categories) {
+    int choice;
+    while (true) {
+        cout << "1. Log in" << endl;
+        cout << "2. Exit" << endl;
+        cout << "Enter your choice:" << endl; 
+        cin >> choice;        
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+            cout << "Error: invalid choice." << endl;   
+            continue;
+        }
+        cin.ignore(1000, '\n');
+        if (choice == 1) {
+            for (int attempt = 1; attempt <= 3; ++attempt) {
+                string username, password;
+                cout << "Enter username: ";
+                getline(cin, username);
+                cout << "Enter password: ";
+                getline(cin, password); 
+                auto it = users.find(username);
+                if (it != users.end() && it->second.password == password) {
+                    cout << "Done: welcome, " << username << ". You are logged in as a " << (it->second.isLibrarian ? "Librarian" : "Member") << "." << endl;                    
+                                    break;
+                } else {
+                    int attemptsLeft = 3 - attempt;
+                    if (attemptsLeft > 0) {
+                        cout << "Error: invalid username or password. You have " << attemptsLeft << " attempts left." << endl;
+                    } else {
+                        cout << "Error: invalid username or password. You have 0 attempts left. Returning to welcome menu." << endl;
+                    }          
+                }
+            }
+        } else if (choice == 2) {
+            cout << "Done: exiting the system. Goodbye!" << endl; 
+            break;
+        } else {
+            cout << "Error: invalid choice." << endl; 
+        }
     }
 }

@@ -11,6 +11,6 @@ vector<Book> books;
     map<string, User> users;
     set<string> categories;
     loadSampleData(books, users, categories);
-printBook(books[0]); 
+runWelcomeMenu(users, books, categories);
 return 0;
 }
