@@ -186,3 +186,10 @@ pair<int, int> counts = getBookCounts(books);
         }
     }
 }
+std::pair<bool, int> findByIsbn(const std::vector<Book>& books, const std::string& isbn) {
+    auto it = std::find_if(books.begin(), books.end(), [&isbn](const Book& b) { return b.isbn == isbn; });
+    if (it == books.end()) {
+        return {false, -1};
+    }
+    return {true, static_cast<int>(std::distance(books.begin(), it))};
+}
