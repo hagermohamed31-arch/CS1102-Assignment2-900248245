@@ -1,6 +1,8 @@
 #include "LibraryData.h"
 #include <iostream>
 #include <limits>
+#include <algorithm>
+#include <iterator>
 using namespace std;
 void loadSampleData(vector<Book>& books, map<string, User>& users, set<string>& categories) {
    users.emplace("librarian", User("librarian", "libpass", true));
@@ -52,21 +54,81 @@ void runWelcomeMenu(map<string, User>& users, vector<Book>& books, set<string>& 
                 auto it = users.find(username);
                 if (it != users.end() && it->second.password == password) {
                     cout << "Done: welcome, " << username << ". You are logged in as a " << (it->second.isLibrarian ? "Librarian" : "Member") << "." << endl;                    
+if (it->second.isLibrarian) {
+                        runLibrarianMenu(users, books, categories);
+}
                                     break;
                 } else {
                     int attemptsLeft = 3 - attempt;
                     if (attemptsLeft > 0) {
                         cout << "Error: invalid username or password. You have " << attemptsLeft << " attempts left." << endl;
                     } else {
-                        cout << "Error: invalid username or password. You have 0 attempts left. Returning to welcome menu." << endl;
-                    }          
-                }
-            }
+                        cout << "Error: invalid username or password. You have 0 attempts left. Returning to welcome menu." << endl;                }                         }    
+                    }
         } else if (choice == 2) {
             cout << "Done: exiting the system. Goodbye!" << endl; 
             break;
         } else {
             cout << "Error: invalid choice." << endl; 
+        }
+    }
+}
+void runLibrarianMenu(map<string, User>& users, vector<Book>& books, set<string>& categories) {
+    int choice;
+    while (true) {
+        cout << "1. List all books (sorted by title)" << endl;
+        cout << "2. List books by category" << endl;
+        cout << "3. Library statistics" << endl;
+        cout << "4. Add a new book" << endl;
+        cout << "5. Search, borrow and return" << endl;
+        cout << "6. Delete a book" << endl;
+        cout << "7. Undo last delete" << endl;
+        cout << "8. Log out" << endl;
+        cout << "Enter your choice:" << endl;
+        cin >> choice;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Error: invalid choice." << endl;
+            continue;
+        }
+                cin.ignore(1000, '\n');
+        switch (choice) {
+            case 1:
+                sort(books.begin(), books.end(), [](const Book& a, const Book& b) {
+    return a.title < b.title;
+});
+for (auto it = books.begin(); it != books.end(); ++it) {
+    printBook(*it);
+}
+                break;
+            case 2:
+                // Implementation for listing books by category
+                break;
+            case 3:
+                // Implementation for library statistics
+                break;
+            case 4:
+                // Implementation for adding a new book
+                cout << "This option is not ready yet."<< endl;
+                break;
+            case 5:
+                // Implementation for search, borrow and return
+                cout << "This option is not ready yet."<< endl;
+                break;
+            case 6:
+                // Implementation for deleting a book
+                cout << "This option is not ready yet."<< endl;
+                break;
+            case 7:
+                // Implementation for undoing last delete
+                cout << "This option is not ready yet."<< endl;
+                break;
+            case 8:
+                // Implementation for logging out
+                return; 
+        default:
+            cout << "Error: invalid choice." << endl;   
         }
     }
 }

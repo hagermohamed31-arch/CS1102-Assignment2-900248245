@@ -26,4 +26,5 @@ struct Book {
 };
 void loadSampleData(vector<Book>& books, map<string, User>& users, set<string>& categories); 
 void printBook(const Book& b);
+void runLibrarianMenu(map<string, User>& users, vector<Book>& books, set<string>& categories);
 void runWelcomeMenu(map<string, User>& users, vector<Book>& books, set<string>& categories);    
