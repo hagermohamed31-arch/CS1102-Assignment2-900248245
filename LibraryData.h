@@ -30,3 +30,4 @@ void printBook(const Book& b);
 void runLibrarianMenu(map<string, User>& users, vector<Book>& books, set<string>& categories);
 void runWelcomeMenu(map<string, User>& users, vector<Book>& books, set<string>& categories);    
 std::pair<bool, int> findByIsbn(const std::vector<Book>& books, const std::string& isbn);
+void addNewBook(std::vector<Book>& books, std::set<std::string>& categories);

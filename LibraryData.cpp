@@ -163,8 +163,7 @@ pair<int, int> counts = getBookCounts(books);
                 break;
             }
             case 4:
-                // Implementation for adding a new book
-                cout << "This option is not ready yet."<< endl;
+            addNewBook(books, categories);
                 break;
             case 5:
                 // Implementation for search, borrow and return
@@ -193,3 +192,90 @@ std::pair<bool, int> findByIsbn(const std::vector<Book>& books, const std::strin
     }
     return {true, static_cast<int>(std::distance(books.begin(), it))};
 }
+void addNewBook(std::vector<Book>& books, std::set<std::string>& categories) {
+    std::string title, author, isbn, category, refInput;
+    int year;
+    bool isRef;
+
+        while (true) {  
+            cout << "Enter title: ";    
+        std::getline(std::cin, title);
+            if (title.empty()) {
+                cout << "Error: title cannot be empty." << endl;
+            }
+                else {    
+            break;
+        }
+    }   
+        while (true) {
+            cout << "Enter author: ";   
+        std::getline(std::cin, author); 
+            if (author.empty()) {
+                cout << "Error: author cannot be empty." << endl;
+            }   
+            else {
+            break;
+        }
+    }   
+        while (true) {
+            cout << "Enter ISBN: ";   
+        std::getline(std::cin, isbn);
+            if (isbn.empty()) {
+                cout << "Error: ISBN cannot be empty." << endl;
+            }      
+            else {
+                auto searchResult = findByIsbn(books, isbn);
+                if (searchResult.first) {
+                    cout << "Error: a book with this ISBN already exists." << endl;
+                }   
+else {
+            break;
+        }     
+    }
+}
+   while (true) {
+        cout << "Enter year: "; 
+         cin >> year;   
+            if (cin.fail()) {
+            cout << "Error: invalid year." << endl;
+            cin.clear();    
+             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+            }
+             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+if(year < 1450 || year > 2026) {
+            cout << "Error: year must be between 1450 and 2026." << endl;
+        } else {
+            break;
+        }
+    }       
+while (true) {
+        cout << "Enter category: ";   
+        std::getline(std::cin, category); 
+        if (category.empty()) {
+            cout << "Error: category cannot be empty." << endl;
+        } else {
+            break;
+        }
+    }   
+        while (true) {
+            cout << "Is this book reference-only? (y/n): ";
+        std::getline(std::cin, refInput);
+        if (refInput == "y" || refInput == "Y") {
+            isRef = true;
+            break;  
+        }
+            else if (refInput == "n" || refInput == "N") {
+            isRef = false;  
+            break;
+        } else {
+            cout << "Error: please enter y or n." << endl;
+        }
+    }
+books.push_back(Book(isbn, title, author, category, year, isRef, false));   
+  auto  insertResult = categories.insert(category); 
+  if (insertResult.second) {
+    cout << "New category added: " << category << "." << endl;
+}
+cout << "Done: " << title << " was added. The library now has " << books.size() << " books." << endl;
+}       
