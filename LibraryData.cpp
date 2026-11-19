@@ -3,6 +3,7 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
+#include<utility>
 using namespace std;
 void loadSampleData(vector<Book>& books, map<string, User>& users, set<string>& categories) {
    users.emplace("librarian", User("librarian", "libpass", true));
@@ -73,6 +74,20 @@ if (it->second.isLibrarian) {
         }
     }
 }
+int getAvailableBookCount(const vector<Book>& books) {
+    return std::count_if(books.begin(), books.end(), [](const Book& b) {
+        return !b.isBorrowed && !b.isReferenceOnly;
+    });
+}
+
+std::pair<int, int> getBookCounts(const vector<Book>& books) {
+    int availableCount = getAvailableBookCount(books);
+    int borrowedCount = std::count_if(books.begin(), books.end(), [](const Book& b) {
+        return b.isBorrowed;
+    });
+    return std::make_pair(availableCount, borrowedCount);
+}
+
 void runLibrarianMenu(map<string, User>& users, vector<Book>& books, set<string>& categories) {
     int choice;
     while (true) {
@@ -99,15 +114,54 @@ void runLibrarianMenu(map<string, User>& users, vector<Book>& books, set<string>
     return a.title < b.title;
 });
 for (auto it = books.begin(); it != books.end(); ++it) {
-    printBook(*it);
-}
+    printBook(*it);}
                 break;
             case 2:
-                // Implementation for listing books by category
+{              
+                int idx = 1;      
+                for (const auto& cat : categories) {
+                    cout << idx << ". " << cat << endl;
+                    ++idx;                  }       
+cout << "Enter your choice:" << endl;   
+int catChoice;
+cin >> catChoice;
+if (cin.fail()) {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cout << "Error: invalid choice." << endl;
+    break; 
+}
+cin.ignore(1000, '\n'); 
+if (catChoice < 1 || catChoice > static_cast<int>(categories.size())) {
+    cout << "Error: invalid choice." << endl; 
+    break; 
+}
+std::set<string>::iterator it = std::next(categories.begin(), catChoice - 1);
+string selectedCategory = *it;
+for (const auto& book : books) {
+    if (book.category == selectedCategory) {    
+        printBook(book);    
+    }
+}
                 break;
-            case 3:
-                // Implementation for library statistics
+}
+            case 3: {
+pair<int, int> counts = getBookCounts(books);
+                    int referenceOnlyCount = std::count_if(books.begin(), books.end(), [](const Book& b) { return b.isReferenceOnly; });
+                int memberCount = 0;
+                for (const auto& entry : users) {
+                    if (!entry.second.isLibrarian) {
+                        ++memberCount;
+                    }
+                }
+                cout << "Total books: " << books.size() << endl;
+                cout << "Available: " << counts.first << endl;
+                cout << "Borrowed: " << counts.second << endl;
+                cout << "Reference only: " << referenceOnlyCount << endl;
+                cout << "Categories: " << categories.size() << endl;
+                cout << "Members: " << memberCount << endl;
                 break;
+            }
             case 4:
                 // Implementation for adding a new book
                 cout << "This option is not ready yet."<< endl;
