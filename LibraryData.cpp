@@ -4,19 +4,20 @@
 #include <algorithm>
 #include <iterator>
 #include<utility>
+#include<stack> 
 using namespace std;
 void loadSampleData(vector<Book>& books, map<string, User>& users, set<string>& categories) {
    users.emplace("librarian", User("librarian", "libpass", true));
     users.emplace("member1", User("member1", "pass1", false));
     users.emplace("member2", User("member2", "pass2", false))   ;
-    books.push_back(Book("978-3-16-148410-0", "C Programming", "Bjarne Stroustrup", "Programming", 2013, false, false));
-    books.push_back(Book("978-0-13-110362-7", "The C++ Programming Language", "Brian W. Kernighan", "Programming", 1988, false, true));
+    books.push_back(Book("C Programming", "Bjarne Stroustrup", "Programming", 2013, "978-3-16-148410-0", false, false));
+    books.push_back(Book("The C++ Programming Language", "Brian W. Kernighan", "Programming", 1988, "978-0-13-110362-7", false, true));
     books.back().borrowedBy = "member2";
     books.back().waitingList.push("member1");
-    books.push_back(Book("978-0-201-83595-3", "Design Patterns", "Erich Gamma", "Software Engineering", 1994, false, false));
-    books.push_back(Book("978-0-596-52068-7", "Head First Design Patterns", "Eric Freeman", "Software Engineering", 2004, false, false));
-    books.push_back(Book("978-0-321-56384-2", "Clean Code", "Robert C. Martin", "Software Engineering", 2008, false, false));
-    books.push_back(Book("978-0-262-03384-8", "Introduction to Algorithms", "Thomas H. Cormen", "Algorithms", 2009, true, false));
+    books.push_back(Book("Design Patterns", "Erich Gamma", "Software Engineering", 1994, "978-0-201-83595-3", false, false));
+    books.push_back(Book("Head First Design Patterns", "Eric Freeman", "Software Engineering", 2004, "978-0-596-52068-7", false, false));
+    books.push_back(Book("Clean Code", "Robert C. Martin", "Software Engineering", 2008, "978-0-321-56384-2", false, false));
+    books.push_back(Book("Introduction to Algorithms", "Thomas H. Cormen", "Algorithms", 2009, "978-0-262-03384-8", true, false));
     for (const auto& book : books) {
         categories.insert(book.category);}
 }
@@ -91,6 +92,7 @@ std::pair<int, int> getBookCounts(const vector<Book>& books) {
 }
 void runLibrarianMenu(map<string, User>& users, vector<Book>& books, set<string>& categories) {
     int choice;
+    std::stack<Book> deletedBooks;
     while (true) {
         cout << "1. List all books (sorted by title)" << endl;
         cout << "2. List books by category" << endl;
@@ -188,11 +190,10 @@ pair<int, int> counts = getBookCounts(books);
     break;
 }
             break;
-            case 6:
-                // Implementation for deleting a book
-                cout << "This option is not ready yet."<< endl;
-                break;
-            case 7:
+                case 6:
+    deleteBook(books, categories, deletedBooks);
+    break;
+                case 7:
                 // Implementation for undoing last delete
                 cout << "This option is not ready yet."<< endl;
                 break;
@@ -212,7 +213,7 @@ std::pair<bool, int> findByIsbn(const std::vector<Book>& books, const std::strin
     return {true, static_cast<int>(std::distance(books.begin(), it))};
 }
 void addNewBook(std::vector<Book>& books, std::set<std::string>& categories) {
-    std::string title, author, isbn, category, refInput;
+    std::string title, author, category, isbn, refInput;
     int year;
     bool isRef;
 
@@ -291,7 +292,7 @@ while (true) {
             cout << "Error: please enter y or n." << endl;
         }
     }
-books.push_back(Book(isbn, title, author, category, year, isRef, false));   
+books.push_back(Book(title, author, category, year, isbn, isRef, false));   
   auto  insertResult = categories.insert(category); 
   if (insertResult.second) {
     cout << "New category added: " << category << "." << endl;
@@ -456,4 +457,43 @@ default:
     cout << "Error: invalid choice." << endl;
 }
 }
+}
+void deleteBook(std::vector<Book>& books, std::set<std::string>& categories, std::stack<Book>& deletedBooks){
+    string isbn;
+    cout << "Enter isbn to delete: " << endl;
+    getline(cin, isbn);
+    if (isbn.empty()){
+        cout << "Error: ISBN cannot be empty." << endl;
+        return;
+    }
+    auto res = findByIsbn(books, isbn);
+if(!res.first) {
+cout << "Error: no book found with that ISBN." << endl;
+return;
+} 
+Book target = books[res.second];
+if(target.isBorrowed) {
+cout << "Error: cannot delete a book that is currently borrowed." << endl;
+return;
+}
+cout << "Are you sure you want to delete " << target.title << "? (y/n): ";
+string confirm;
+getline(cin, confirm);
+if (confirm != "y" && confirm != "Y") {
+    cout << "Deletion cancelled." << endl;
+    return;
+}
+deletedBooks.push(target);
+books.erase(books.begin() + res.second);
+bool categoryStillUsed = false;
+for (const auto& book : books) {
+    if (book.category == target.category) {
+        categoryStillUsed = true;
+        break;
+    }
+}
+if (!categoryStillUsed) {
+    categories.erase(target.category);
+}
+cout << "Done: " << target.title << " was deleted." << endl;
 }

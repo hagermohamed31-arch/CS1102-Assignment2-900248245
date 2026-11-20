@@ -5,6 +5,7 @@
 #include <queue>
 #include<set>
 #include<utility>
+#include<stack>
 using namespace std;
 struct User {
     string username;
@@ -22,8 +23,8 @@ struct Book {
     bool isReferenceOnly;
     bool isBorrowed;
     queue<string> waitingList;
-    Book(string i, string t, string a, string c, int y, bool r, bool b)
-        : isbn(i), title(t), author(a), category(c), year(y), isReferenceOnly(r), isBorrowed(b) {}
+    Book(string t, string a, string c, int y, string i, bool r, bool b)
+        : title(t), author(a), category(c), year(y), isbn(i), isReferenceOnly(r), isBorrowed(b) {}
 };
 void loadSampleData(vector<Book>& books, map<string, User>& users, set<string>& categories); 
 void printBook(const Book& b);
@@ -35,3 +36,5 @@ void searchBooks(const std::vector<Book>& books);
 void runMemberMenu(const std::string& currentUser, std::vector<Book>& books);
 void borrowBook(const std::string& currentUser, std::vector<Book>& books);
 void returnBook(const std::string& currentUser, std::vector<Book>& books);
+void deleteBook(std::vector<Book>& books, std::set<std::string>& categories, std::stack<Book>& deletedBooks);
+void undoDelete(std::vector<Book>& books, std::set<std::string>& categories, std::stack<Book>& deletedBooks);
