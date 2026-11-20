@@ -55,11 +55,14 @@ void runWelcomeMenu(map<string, User>& users, vector<Book>& books, set<string>& 
                 auto it = users.find(username);
                 if (it != users.end() && it->second.password == password) {
                     cout << "Done: welcome, " << username << ". You are logged in as a " << (it->second.isLibrarian ? "Librarian" : "Member") << "." << endl;                    
-if (it->second.isLibrarian) {
-                        runLibrarianMenu(users, books, categories);
-}
-                                    break;
+                if (it->second.isLibrarian) {
+                    runLibrarianMenu(users, books, categories);
                 } else {
+                    runMemberMenu(username, books);
+                }
+                break;
+            }
+        else {
                     int attemptsLeft = 3 - attempt;
                     if (attemptsLeft > 0) {
                         cout << "Error: invalid username or password. You have " << attemptsLeft << " attempts left." << endl;
@@ -279,3 +282,92 @@ books.push_back(Book(isbn, title, author, category, year, isRef, false));
 }
 cout << "Done: " << title << " was added. The library now has " << books.size() << " books." << endl;
 }       
+void searchBooks(const std::vector<Book>& books) {
+    int searchType;
+    cout << "Search by" << endl;
+    cout << "1. Title" << endl;
+    cout << "2. Author" << endl;
+    cout << "3. ISBN" << endl;
+    cout << "Enter your choice: " << endl;
+    cin >> searchType;
+    if(cin.fail() || searchType < 1 || searchType > 3) {
+     cin.clear();   
+cin.ignore(numeric_limits<streamsize>::max(), '\n');
+cout << "Error: invalid choice." << endl;
+        return;
+}
+cin.ignore(1000, '\n'); 
+    cout << "Enter search term: " << endl;
+    string query;
+    getline(cin, query);
+    if(query.empty()) {
+        cout << "Error: search term cannot be empty." << endl;
+        return;
+    }
+  vector<Book> matches;
+for (const auto& book : books) {
+    if (searchType == 1 && book.title.find(query) != string::npos) {
+        matches.push_back(book);
+    } else if (searchType == 2 && book.author.find(query) != string::npos) {
+        matches.push_back(book);
+    } else if (searchType == 3 && book.isbn == query) {
+        matches.push_back(book);
+    }
+}
+    if (matches.empty()) {
+    cout << "No book found." << endl;
+} else {
+    cout << "Found " << matches.size() << " book(s):" << endl;
+    for (const auto& m : matches) {
+        printBook(m);
+    }
+}
+}
+void runMemberMenu(const std::string& currentUser, std::vector<Book>& books) {
+int choice;
+while(true) {
+    cout << "1. Search for a book: " << endl;
+    cout << "2. Borrow a book" << endl;
+cout << "3. Return a book" << endl;
+cout << "4. My borrowed books" << endl;
+cout <<"5. logout" << endl;
+cout << "Enter your choice: " << endl;
+cin >> choice;
+if(cin.fail()) {
+    cin.clear();
+cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+cout << "Error: invalid choice." << endl; 
+continue; 
+}
+cin.ignore(1000, '\n');
+switch (choice) {
+case 1:
+searchBooks(books);
+break;
+case 2:
+cout << "This option is not ready yet." << endl; 
+break;
+case 3:
+cout << "This option is not ready yet." << endl; 
+break;
+case 4: {
+    bool foundAny = false;
+    for (const auto& book : books) {
+        if (book.isBorrowed && book.borrowedBy == currentUser) {
+            printBook(book);
+            foundAny = true;
+        }
+    }
+    if (!foundAny) {
+        cout << "You have not borrowed any books." << endl;
+    }
+    break;
+}
+case 5:
+    return;
+default:
+    cout << "Error: invalid choice." << endl;
+}
+}
+
+}
