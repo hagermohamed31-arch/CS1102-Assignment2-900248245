@@ -194,9 +194,8 @@ pair<int, int> counts = getBookCounts(books);
     deleteBook(books, categories, deletedBooks);
     break;
                 case 7:
-                // Implementation for undoing last delete
-                cout << "This option is not ready yet."<< endl;
-                break;
+    undoDelete(books, categories, deletedBooks);
+    break;
             case 8:
                 // Implementation for logging out
                 return; 
@@ -496,4 +495,15 @@ if (!categoryStillUsed) {
     categories.erase(target.category);
 }
 cout << "Done: " << target.title << " was deleted." << endl;
+}
+void undoDelete(std::vector<Book>& books, std::set<std::string>& categories, std::stack<Book>& deletedBooks) {
+    if (deletedBooks.empty()) {
+        cout << "Error: there is nothing to undo." << endl;
+        return;
+    }
+    Book restored = deletedBooks.top();
+    deletedBooks.pop();
+    books.push_back(restored);
+    categories.insert(restored.category);
+    cout << "Done: " << restored.title << " was restored." << endl;
 }
