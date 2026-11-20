@@ -82,7 +82,6 @@ int getAvailableBookCount(const vector<Book>& books) {
         return !b.isBorrowed && !b.isReferenceOnly;
     });
 }
-
 std::pair<int, int> getBookCounts(const vector<Book>& books) {
     int availableCount = getAvailableBookCount(books);
     int borrowedCount = std::count_if(books.begin(), books.end(), [](const Book& b) {
@@ -90,7 +89,6 @@ std::pair<int, int> getBookCounts(const vector<Book>& books) {
     });
     return std::make_pair(availableCount, borrowedCount);
 }
-
 void runLibrarianMenu(map<string, User>& users, vector<Book>& books, set<string>& categories) {
     int choice;
     while (true) {
@@ -168,10 +166,28 @@ pair<int, int> counts = getBookCounts(books);
             case 4:
             addNewBook(books, categories);
                 break;
-            case 5:
-                // Implementation for search, borrow and return
-                cout << "This option is not ready yet."<< endl;
-                break;
+          case 5: {
+    int subChoice;
+    cout << "1. Search for a book" << endl;
+    cout << "2. Borrow a book" << endl;
+    cout << "3. Return a book" << endl;
+    cout << "4. Back" << endl;
+    cout << "Enter your choice:" << endl;
+    cin >> subChoice;
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Error: invalid choice." << endl;
+        break;
+    }
+    cin.ignore(1000, '\n');
+    if (subChoice == 1) searchBooks(books);
+    else if (subChoice == 2) borrowBook("librarian", books);
+    else if (subChoice == 3) returnBook("librarian", books);
+    else if (subChoice != 4) cout << "Error: invalid choice." << endl;
+    break;
+}
+            break;
             case 6:
                 // Implementation for deleting a book
                 cout << "This option is not ready yet."<< endl;
@@ -323,6 +339,77 @@ for (const auto& book : books) {
     }
 }
 }
+void borrowBook(const std::string& currentUser, std::vector<Book>& books) {
+    cout << "Enter ISBN to borrow: " << endl;
+    string isbn;
+    getline(cin, isbn);
+if(isbn.empty()) {
+        cout << "Error: ISBN cannot be empty." << endl;
+        return;
+}
+auto result = findByIsbn(books, isbn);
+if (!result.first) {
+    cout << "Error: no book found with that ISBN." << endl;
+    return;
+}
+Book& book = books[result.second];    
+ if (book.isReferenceOnly) {
+ cout << "Error: this book is reference-only and cannot be borrowed." << endl;
+        return;
+}
+    if(!book.isBorrowed) {
+ book.isBorrowed = true;
+  book.borrowedBy = currentUser;
+cout << "Done: you have borrowed " << book.title << "." <<endl;
+return;
+    }
+    else 
+    { if(book.borrowedBy == currentUser) {
+          cout << "Error: you have already borrowed this book." << endl;
+            return;
+}
+        queue<string> tempQueue = book.waitingList;
+        while (!tempQueue.empty()) {
+        if(tempQueue.front() == currentUser) {
+            cout << "Error: you are already on the waiting list for this book." << endl;
+                return;
+        }
+tempQueue.pop();
+    }
+book.waitingList.push(currentUser);
+        cout << "This book is currently borrowed. You have been added to the waiting list (position " << book.waitingList.size() << ")." << endl;
+}
+}
+void returnBook(const std::string& currentUser, std::vector<Book>& books) {
+cout << "Enter ISBN to return: " << endl;
+string isbn;
+getline(cin, isbn);
+if(isbn.empty()) {
+cout << "Error: ISBN cannot be empty." << endl;
+return;
+}
+auto result = findByIsbn(books, isbn);
+if(!result.first) {
+    cout << "Error: no book found with that ISBN." << endl;
+    return;
+}
+Book& book = books[result.second]; 
+if (!book.isBorrowed || book.borrowedBy != currentUser) {
+cout << "Error: you have not borrowed this book." << endl;
+return;
+}
+cout << "Done: " << book.title << " has been returned." << endl;
+if (!book.waitingList.empty()) {
+    string nextUser = book.waitingList.front();
+book.waitingList.pop(); 
+book.borrowedBy = nextUser;
+cout << "Notice: " << book.title << " has been automatically assigned to " << nextUser << "from the waiting list." << endl;
+}
+else {
+    book.isBorrowed = false; 
+    book.borrowedBy = "";
+}
+}
 void runMemberMenu(const std::string& currentUser, std::vector<Book>& books) {
 int choice;
 while(true) {
@@ -345,10 +432,10 @@ case 1:
 searchBooks(books);
 break;
 case 2:
-cout << "This option is not ready yet." << endl; 
+borrowBook(currentUser, books);
 break;
 case 3:
-cout << "This option is not ready yet." << endl; 
+returnBook(currentUser, books);
 break;
 case 4: {
     bool foundAny = false;
@@ -369,5 +456,4 @@ default:
     cout << "Error: invalid choice." << endl;
 }
 }
-
 }

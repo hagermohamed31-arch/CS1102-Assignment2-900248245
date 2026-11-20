@@ -33,3 +33,5 @@ std::pair<bool, int> findByIsbn(const std::vector<Book>& books, const std::strin
 void addNewBook(std::vector<Book>& books, std::set<std::string>& categories);
 void searchBooks(const std::vector<Book>& books);
 void runMemberMenu(const std::string& currentUser, std::vector<Book>& books);
+void borrowBook(const std::string& currentUser, std::vector<Book>& books);
+void returnBook(const std::string& currentUser, std::vector<Book>& books);
